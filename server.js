@@ -3,6 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const {Client}=require("pg");
 const bodyParser=require("body-parser");
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 const app = express();

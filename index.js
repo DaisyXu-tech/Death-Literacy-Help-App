@@ -5,7 +5,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import session from "express-session";
 import pg from "pg";
-require ('dotenv').config()
+import dotenv from 'dotenv';
+dotenv.config();
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(_filename);
@@ -39,16 +40,7 @@ db.query(`
 
 
 
-db.query(`
-  CREATE TABLE IF NOT EXISTS quiz_scores (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    averagescore JSON NOT NULL,
-    overallscore NUMERIC NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  );
-`).then(() => console.log('Table created')).catch(console.error);
+
 
 
 // Middleware setup
