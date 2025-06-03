@@ -1,0 +1,614 @@
+<%- include('partials/header') %>
+<style>
+  /* Base styling */
+
+  .section-title {
+    margin-top: 0;
+    font-size: 1.6rem;
+    color: #2c3e50;
+    border-bottom: 3px solid #4caf50;
+    padding-bottom: 6px;
+  }
+
+  p {
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .rating-container label {
+    margin-right: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #555;
+  }
+
+  .rating-container input[type="radio"] {
+    margin-left: 4px;
+    margin-right: 12px;
+    cursor: pointer;
+  }
+
+  #nextBtn,
+  #submitBtn {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 6px 26px;
+    margin: 10px 8px 25px 0;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #nextBtn:hover,
+  #submitBtn:hover {
+    background-color: #45a049;
+  }
+
+  #submitBtn {
+    display: none;
+  }
+
+  #results {
+    border-top: 1px solid #ddd;
+    margin-top: 30px;
+    padding-top: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+    border-radius: 8px;
+  }
+
+  .result-item {
+    margin-top: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  #overallScorecontainer {
+    margin-top: 25px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #2c3e50;
+  }
+
+  .feedback {
+    margin-top: 14px;
+    font-style: italic;
+    color: #555;
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 10px 15px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  .progress {
+    height: 18px;
+    background-color: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+    transition: width 0.4s ease;
+    color: white;
+    text-align: center;
+    line-height: 24px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    user-select: none;
+  }
+</style>
+<style>
+  .hero {
+    background: linear-gradient(to right, #dbeafe, #ffffff);
+    padding: 60px 0;
+    text-align: center;
+  }
+  .section {
+    padding: 60px 0;
+  }
+  .quiz-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0px 40px;
+  }
+  h1 {
+    color: #5a5a5a;
+    font-weight: bold;
+  }
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #388e3c;
+  }
+  .question-section {
+    margin-bottom: 30px;
+  }
+  .btn-submit,
+  .btn-next {
+    background-color: #4caf50;
+    color: white;
+    font-weight: bold;
+  }
+  .btn-submit:hover,
+  .btn-next:hover {
+    background-color: #45a049;
+  }
+  .results-container {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-radius: 10px;
+    display: none;
+    margin-top: 40px;
+  }
+  .result-title {
+    font-size: 1.5rem;
+    color: #4caf50;
+  }
+  .result-item {
+    margin-bottom: 15px;
+  }
+  .result-item b {
+    color: #388e3c;
+  }
+  .form-check-label {
+    font-size: 1.1rem;
+  }
+  .form-check-input {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+  }
+  .rating-container {
+    display: flex;
+    gap: 10px;
+  }
+  .form-check {
+    margin-right: 15px;
+  }
+  #progressBarContainer {
+    height: 20px;
+    margin-bottom: 20px;
+  }
+  #results {
+    margin: 24px 64px;
+    padding: 24px;
+  }
+</style>
+
+<h1 class="text-center my-4">Death Literacy Index Quiz</h1>
+
+<div class="d-flex justify-content-center">
+  <form id="quizForm" class="quiz-container">
+  <div class="progress">
+    <div
+      id="progressBar"
+      class="progress-bar"
+      aria-valuenow="0"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      0%
+    </div>
+  </div>
+  <div id="questionsContainer"></div>
+
+  <button type="button" id="nextBtn">Next</button>
+  <button type="submit" id="submitBtn">Submit</button>
+</form>
+</div>
+
+<div id="results" style="display: none">
+  <h2>Results</h2>
+  <div id="resultsSummary"></div>
+  <div id="overallScorecontainer">
+    Overall Score: <span id="overallScore"></span>
+    <div class="feedback"></div>
+  </div>
+</div>
+
+<!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  var currentSectionIndex = 0;
+  var totalSections = 6;
+  var answers = [];
+
+  var averageScores = {};
+  var overallScore = 0;
+
+  var questions = [
+    {
+      title: "🗣️ Talking-Support",
+      subtitle:
+        "This reflects your grace in having conversations around death, dying, and grief.",
+      scale: "(1 = Not at all able, 5 = Very able)",
+      questions: [
+        "Talking about death, dying or grief to a close friend",
+        "Talking about death, dying or grieving with a child",
+        "Talking to a grieving person about their loss",
+        "Talking to a health professional about getting support for a dying person where they live",
+      ],
+    },
+    {
+      title: "👐 Providing Hands-On Care",
+      subtitle:
+        "This indicates how prepared you feel to provide direct care to someone nearing end-of-life.",
+      scale: "(1 = Not at all able, 5 = Very able)",
+      questions: [
+        "Feed or help a person to eat",
+        "Wash a person",
+        "Lifting a person or helping them move",
+        "Administer injections",
+      ],
+    },
+    {
+      title: "🌱 Experiential Knowledge",
+      subtitle:
+        "Your life experiences appear to have significantly contributed to your emotional preparedness and understanding.",
+      scale: "(1 = Do not agree at all, 5 = Strongly agree)",
+      questions: [
+        "Made me more emotionally prepared to support others with death, dying and bereavement",
+        "Made me think about what is important and not important in life",
+        "Developed my wisdom and understanding",
+        "Made me more compassionate toward myself",
+        "Made me better prepared to face similar challenges in the future",
+      ],
+    },
+    {
+      title: "📘 Factual Knowledge",
+      subtitle:
+        "You show strong knowledge of legal, medical, and procedural aspects related to dying and death.",
+      scale: "(1 = Do not agree at all, 5 = Strongly agree)",
+      questions: [
+        "I know the rules and regulations when a person dies at home",
+        "I know what documents are needed when planning for death",
+        "I know enough about the healthcare system to find the support that a dying person needs",
+        "I know enough to make decisions about funeral services and options",
+        "I know how to access palliative care in my area",
+        "I know enough about how illnesses progress to make decisions about medical treatments at end of life",
+        "I know about the ways that cemetery staff can be of help around funerals",
+      ],
+    },
+    {
+      title: "🌏 Community Knowledge",
+      subtitle:
+        "You have some awareness of community resources, though there may be areas for growth or exploration.",
+      scale: "(1 = Strongly disagree, 5 = Strongly agree)",
+      questions: [
+        "To get support in the area where I live (e.g. from clubs, associations or volunteer groups)",
+        "To get help with providing day-to-day care for a person at the end of life",
+        "To get equipment that is required for care",
+        "To get support that is culturally appropriate for a person",
+        "To get emotional support for myself",
+      ],
+    },
+    {
+      title: "🤝 Community Support",
+      subtitle:
+        "You believe your community offers support for those affected by death, dying, and grief.",
+      scale: "(1 = Do not agree at all, 5 = Strongly agree)",
+      questions: [
+        "People with life threatening illnesses",
+        "People who are nearing the end of their lives",
+        "People who are caring for a dying person",
+        "People who are grieving",
+      ],
+    },
+  ];
+
+  // Load the current section's questions and UI
+  function loadSection() {
+    var currentSection = questions[currentSectionIndex];
+    var questionHtml = `<h3 class="section-title" >${currentSection.title}</h3>
+      <p class="mb-1 fw-bold" style="font-size: 22px;">${currentSection.subtitle}</p>
+      <p class="small fw-bold mb-3 text-end">${currentSection.scale}</p>`;
+
+    currentSection.questions.forEach(function (question, idx) {
+      questionHtml += `
+        <div class="mb-1">
+          <label style="font-size: 18px;">${question}</label>
+          <div class="rating-container">
+            <label for="q${currentSectionIndex}_${idx}_1">1</label>
+            <input type="radio" name="q${currentSectionIndex}_${idx}" id="q${currentSectionIndex}_${idx}_1" value="1" class="form-check-input" required>
+            <label for="q${currentSectionIndex}_${idx}_2">2</label>
+            <input type="radio" name="q${currentSectionIndex}_${idx}" id="q${currentSectionIndex}_${idx}_2" value="2" class="form-check-input">
+            <label for="q${currentSectionIndex}_${idx}_3">3</label>
+            <input type="radio" name="q${currentSectionIndex}_${idx}" id="q${currentSectionIndex}_${idx}_3" value="3" class="form-check-input">
+            <label for="q${currentSectionIndex}_${idx}_4">4</label>
+            <input type="radio" name="q${currentSectionIndex}_${idx}" id="q${currentSectionIndex}_${idx}_4" value="4" class="form-check-input">
+            <label for="q${currentSectionIndex}_${idx}_5">5</label>
+            <input type="radio" name="q${currentSectionIndex}_${idx}" id="q${currentSectionIndex}_${idx}_5" value="5" class="form-check-input">
+          </div>
+        </div>
+      `;
+    });
+
+    $("#questionsContainer").html(questionHtml);
+
+    // Update progress bar
+    var progress = ((currentSectionIndex + 1) / totalSections) * 100;
+    console.log('test-progress',currentSectionIndex, totalSections, progress)
+    $("#progressBar").css("width", progress + "%");
+    $("#progressBar").html(progress.toFixed(2) + "%");
+
+    // Show submit button on last section, else show next button
+    if (currentSectionIndex === totalSections - 1) {
+      $("#nextBtn").hide();
+      $("#submitBtn").show();
+    } else {
+      $("#nextBtn").show();
+      $("#submitBtn").hide();
+    }
+  }
+
+  // Handle clicking "Next"
+  $("#nextBtn").on("click", function () {
+    // Validate current section all questions answered
+    var allAnswered = true;
+    var currentSection = questions[currentSectionIndex];
+    for (let i = 0; i < currentSection.questions.length; i++) {
+      if (!$(`input[name="q${currentSectionIndex}_${i}"]:checked`).length) {
+        allAnswered = false;
+        break;
+      }
+    }
+    if (!allAnswered) {
+      alert("Please answer all questions before continuing.");
+      return;
+    }
+
+    // Save answers from current section
+    var scores = [];
+    $(`input[name^="q${currentSectionIndex}"]:checked`).each(function () {
+      scores.push(Number($(this).val()));
+    });
+    answers[currentSectionIndex] = scores;
+
+    // Move to next section
+    currentSectionIndex++;
+    loadSection();
+
+    // Scroll to top smoothly
+    $("html, body").animate({ scrollTop: 0 }, "smooth");
+  });
+
+  // Show success message briefly
+  function showSuccessMessage() {
+    const messageDiv = $("#successMessage");
+    if (messageDiv.length) {
+      messageDiv.removeClass("hidden");
+      setTimeout(() => {
+        messageDiv.addClass("hidden");
+      }, 3000);
+    }
+  }
+
+  // Handle final form submission
+  $("#quizForm").on("submit", function (e) {
+    e.preventDefault();
+
+    // Validate last section all answered
+    var lastSection = questions[currentSectionIndex];
+    var allAnswered = true;
+    for (let i = 0; i < lastSection.questions.length; i++) {
+      if (!$(`input[name="q${currentSectionIndex}_${i}"]:checked`).length) {
+        allAnswered = false;
+        break;
+      }
+    }
+    if (!allAnswered) {
+      alert("Please answer all questions before submitting.");
+      return;
+    }
+
+    // Save last section answers
+    var lastScores = [];
+    $(`input[name^="q${currentSectionIndex}"]:checked`).each(function () {
+      lastScores.push(Number($(this).val()));
+    });
+    answers[currentSectionIndex] = lastScores;
+
+    // Flatten all answers into a single array for score calculations
+    const allScores = answers.flat();
+
+    // Calculate averages per section based on question counts
+    let start = 0;
+    averageScores = {
+      "Talking-Support": (() => {
+        const count = 4;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+      "Providing Hands-On Care": (() => {
+        const count = 4;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+      "Experiential Knowledge": (() => {
+        const count = 5;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+      "Factual Knowledge": (() => {
+        const count = 7;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+      "Community Knowledge": (() => {
+        const count = 5;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+      "Community Support": (() => {
+        const count = 4;
+        const slice = allScores.slice(start, start + count);
+        start += count;
+        return slice.reduce((a, b) => a + b, 0) / count;
+      })(),
+    };
+
+    // Calculate overall score as average of averages
+    overallScore =
+      Object.values(averageScores).reduce((sum, score) => sum + score, 0) /
+      Object.values(averageScores).length;
+
+    // Optionally send to server
+    fetch("/save-scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Important for cookies
+      body: JSON.stringify({
+        overallScore: overallScore,
+        averageScores: averageScores,
+      }),
+    })
+      .then(async (response) => {
+        const contentType = response.headers.get("content-type");
+        if (!response.ok) {
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Unknown error");
+          } else {
+            throw new Error("Unexpected server error (non-JSON response)");
+          }
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.message); // "Scores saved successfully"
+      })
+      .catch((error) => {
+        console.error("Error:", error.message);
+      });
+
+    // Insert overall score
+    $("#overallScore").text(overallScore.toFixed(2));
+
+    // Display summary results
+    var resultHtml = "<h4>Results Summary</h4>";
+    resultHtml += `<div><b>Overall Score:</b> ${overallScore.toFixed(2)}</div>`;
+    for (const [section, score] of Object.entries(averageScores)) {
+      resultHtml += `
+        <div class="result-item">
+          <b>${section}:</b> ${score.toFixed(2)}
+        </div>`;
+    }
+    $("#resultsSummary").html(resultHtml);
+
+    $("#results").show();
+    $("#quizForm").hide();
+
+    showSuccessMessage();
+
+    // Scroll to results
+    $("html, body").animate({ scrollTop: $("#results").offset().top }, "slow");
+  });
+
+  // Show detailed feedback on submit button click (optional)
+  $("#submitBtn").click(function () {
+    const feedback = [];
+
+    // Example feedback logic based on overallScore and averageScores (customize as needed)
+    if (overallScore >= 5.8) {
+      feedback.push(
+        "<div class='feedback-primary-good'>You scored higher than most people on the Death Literacy Index.</div>"
+      );
+    } else if (overallScore >= 3.86 && overallScore <= 5.8) {
+      feedback.push(
+        "<div class='feedback-primary-mid'>Your score is about average across all areas of death literacy.</div>"
+      );
+    } else {
+      feedback.push(
+        "<div class='feedback-primary-bad'>You scored lower than others on the overall Death Literacy Index.</div>"
+      );
+    }
+
+    // Add section-specific feedback (example for one section, repeat as needed)
+    if (averageScores["Talking-Support"] < 4.25) {
+      feedback.push(
+        "<div class='feedback-bad'><strong>Talking-Support:</strong> You scored lower than most people when it comes to talking about death and dying. You might not feel very confident talking about death yet-and that's completely okay.<div>"
+      );
+      }else if (averageScores["Talking-Support"]>6.68) {
+        feedback.push(
+        "<div class='feedback-good'><strong>Talking-Support:</strong> Talking-Support:You scored higher than most people in talking about death and dying.You seem really comfortable talking about end-of-life matters, which is a real strength.Use that comfort to gently support others who may find these conversations difficult. You can help make these talks feel safer. <div>");
+        }else {
+        feedback.push("<div class='feedback-good'><strong>Talking-Support:</strong> Talking-Support:Your score is about the same as most people's.You're about as comfortable talking about death as most people. That's a solid place to be.Keep having open conversations when the opportunity comes up—it helps create a more supportive space for everyone.</div>");
+    }
+    
+    if (averageScores["Providing Hands-On Care"]>5.89){
+        feedback.push(
+         "<div class='feedback-good'><strong>Providing Hands-On Care:</strong>You scored higher than most people in hands-on support.You've clearly had experience helping someone directly, and that's really valuable.Consider mentoring others or getting involved in your community's end-of-life care efforts. Your experience can make a difference.</div>");
+     } else if(averageScores["Providing Hands-On Care"]<3.35){
+        feedback.push("<div class='feedback-good'><strong>Providing Hands-On Care:</strong>You scored lower than others in hands-on care.You may not have had much experience helping someone physically at the end of life. That's very common.You could look into volunteering, or even just learn basic care skills—it can help build confidence over time.</div>");
+     } else{
+        feedback.push("<div class='feedback-good'><strong>Providing Hands-On Care:</strong>Your score is in line with the average when it comes to hands-on support.You've had some hands-on experience, about the same as most people.Share what you've learned, and look for chances to build on your skills when you feel ready.</div>");
+     }
+
+    if (averageScores["Experiential Knowledge"]>7.05){
+        feedback.push(
+          "<div class='feedback-good'><strong>Experiential Knowledge:</strong>You scored higher than others in experience.You've had more exposure to death and dying than most. That gives you valuable perspective.You might find yourself naturally supporting others—your lived experience is a real asset.</div>");
+     } else if (averageScores["Experiential Knowledge"]<4.75){
+        feedback.push("<div class='feedback-good'><strong>Experiential Knowledge:</strong>You scored lower than others in experience with death and dying.You may not have had many personal or professional experiences with death or dying.Consider listening to others' stories, or gently reflect on your own feelings. That's a good starting point.</div>");
+     } else{
+        feedback.push("<div class='feedback-good'><strong>Experiential Knowledge:</strong>Your experience score is about average.Your experiences are about average—enough to give you a sense of what death and dying can be like.Stay open to learning from your own experiences and those around you. It builds wisdom.</div>");
+     }
+    if (averageScores["Factual Knowledge"]>5.08){
+         feedback.push(
+          "<div class='reedback-good'><strong>Factual Knowledge:</strong>You scored higher than most people in knowledge about end-of-life matters.You know quite a lot about death-related matters. That's a powerful tool.Consider helping others understand what you've learned—many people are looking for someone who can guide them.</div>");
+     } else if (averageScores["Factual Knowledge"]<2.5){
+         feedback.push("<div class='feedback-good'><strong>Factual Knowledge:</strong>You scored lower than others in death-related knowledge.You might not feel very informed about end-of-life care or services right now.Learning even just a bit more—like what options exist—can help you feel more prepared and confident.</div>");
+     } else{
+         feedback.push("<div class='feedback-good'><strong>Factual Knowledge:</strong>Your knowledge score is about the same as others'.You've got a good, solid base of knowledge—enough to understand what's going on.Keep asking questions and exploring. It'll help you and those you care about.</div>");
+     }
+    
+    if (averageScores["Community Knowledge"]>5.7){
+         feedback.push("<div class='feedback-good'><strong>Community Knowledge:</strong>You scored higher than others in overall community support.You see your community as supportive and engaged around dying and grieving. That's a real strength.Share what's working—others might be looking for ideas to build similar support in their own communities.</div>");
+     } else if(averageScores["Community Knowledge"]>3.5){
+         feedback.push("<div class='feedback-good'><strong>Community Knowledge:</strong>You scored lower than others overall in community-related support.You might not feel very supported by your community around death-related matters.See if there are community groups or events that can help build that support. Small actions make a big difference.</div>");
+     } else{
+        feedback.push("<div class='feedback-good'><strong>Community Knowledge:</strong>Your overall community score is similar to others'.Your sense of community support is about the same as others'.Keep showing up and being part of the conversation—it helps the whole community grow stronger.</div>");
+     }
+
+     if (averageScores["Community Support"]>5.39) {
+         feedback.push("<div class='feedback-good'><strong>Community Support:</strong>You scored higher than most in community support.You feel like your community is pretty supportive, which is wonderful.Help keep that support going by getting involved and welcoming others in.</div>");
+     }  else if (averageScores["Community Support"]>2.91){
+         feedback.push("<div class='feedback-good'><strong>Community Support:</strong>You scored lower than others in feeling supported by your community.You might feel like your community doesn't offer much support around death and dying.Think about ways you can connect with others—there may be more support out there than it seems.</div>");
+     } else {
+        feedback.push("<div class='feedback-good'><strong>Community Support:</strong>Your score is typical when it comes to perceived community support.Your experience with community support is similar to most people's.Look for ways to strengthen those ties—community can be a big help during difficult times.</div>");
+     }
+
+
+    // Insert feedback into container
+    $("#overallScorecontainer .feedback").html(feedback.join(""));
+    $("#overallScorecontainer").show();
+  });
+
+  // Initial load of first section
+  $(document).ready(function () {
+    loadSection();
+    $("#submitBtn").hide();
+  });
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,109 @@
+<%- include('partials/header') %>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="display-1 text-muted" style="font-size: 5rem">🕊️</div>
+    <h1 class="display-4">Welcome to the TechShift, Death Literacy App</h1>
+    <p class="lead">
+      Empowering individuals and communities to face end-of-life topics with
+      knowledge, compassion, and grace.
+    </p>
+    <div class="d-flex gap-3 justify-content-center pt-4">
+      <% if (userId) { %>
+      <!-- User is logged in -->
+      <a href="/quiz" class="btn btn-outline-primary btn-lg">Take the Quiz</a>
+      <% } else { %>
+      <!-- User not logged in -->
+      <a class="btn btn-light btn-lg" href="/register" role="button"
+        >Register</a
+      >
+      <a class="btn btn-dark btn-lg" href="/login" role="button">Login</a>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="section bg-white text-center">
+  <div class="container">
+    <h2 class="section-title">About Us</h2>
+    <p class="lead">
+      We help normalize conversations around death, dying, and grief. Our tools
+      and resources guide people in planning, supporting others, and improving
+      their understanding of end-of-life processes.
+    </p>
+    <p>
+      We believe everyone deserves to navigate mortality with clarity and
+      dignity. Join us in transforming fear and silence into empowerment and
+      preparedness.
+    </p>
+    <a href="about.html" class="btn btn-outline-primary mt-3">Learn More</a>
+  </div>
+</section>
+
+<!-- Education -->
+<section id="education" class="section text-center">
+  <div class="container">
+    <h2 class="section-title">Learn with Us</h2>
+    <p class="mb-4">
+      Browse articles, watch videos, and take mini-courses on practical and
+      emotional aspects of death literacy — from palliative care to funeral
+      planning and emotional resilience.
+    </p>
+    <a href="education.html" class="btn btn-primary"
+      >Browse Educational Resources</a
+    >
+  </div>
+</section>
+
+<!-- Quiz -->
+<section id="quiz" class="section bg-white text-center">
+  <div class="container">
+    <h2 class="section-title">How Death Literate Are You?</h2>
+    <p>
+      Take our free, research-based quiz to assess your grace and knowledge
+      across key areas of death literacy.
+    </p>
+    <a href="quiz.html" class="btn btn-success mt-3">Start the Quiz</a>
+  </div>
+</section>
+
+<!-- Resources -->
+<section id="resources" class="section text-center">
+  <div class="container">
+    <h2 class="section-title">Helpful Tools & Resources</h2>
+    <p>
+      Download templates for advance care planning, funeral checklists, grief
+      support tips, and more. Everything you need to feel more in control and
+      informed.
+    </p>
+    <a href="#" class="btn btn-outline-secondary mt-3">Access Resources</a>
+  </div>
+</section>
+
+<!-- Community -->
+<section id="community" class="section bg-white text-center">
+  <div class="container">
+    <h2 class="section-title">Join the Conversation</h2>
+    <p>
+      Connect with people who share your concerns, questions, and experiences.
+      Participate in our discussion forums, storytelling sessions, or support
+      groups.
+    </p>
+    <a href="#" class="btn btn-info mt-3">Visit the Community</a>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="section text-center">
+  <div class="container">
+    <h2 class="section-title">Contact Us</h2>
+    <p>
+      Whether you’re a healthcare professional, educator, or someone seeking
+      clarity around death and dying — we’re here for you.
+    </p>
+    <a href="mailto:info@techshiftdl.com" class="btn btn-dark mt-3">Email Us</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

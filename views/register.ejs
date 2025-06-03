@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+  <div class="container mt-4 main-space d-flex flex-column align-items-center gap-1">
+    <h1>Register</h1>
+
+     <div class="card" style="width: 400px;">
+          <div class="card-body">
+
+            <!-- Makes POST request to /register route -->
+            <form action="/register" method="POST">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" name="username">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password">
+              </div>
+               <div class="form-group">
+              <label for="first_name">First Name</label>
+              <input type="first_name" class="form-control" name="first_name">
+            </div>
+            <div class="form-group">
+              <label for="last_name">Last Name</label>
+              <input type="last_name" class="form-control" name="last_name">
+            </div>
+              <div class="text-end mt-3">
+                <button type="submit" class="btn btn-dark">Register</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+    <!-- <div class="row">
+      <div class="col-sm-8">
+       
+      </div>
+
+  <div class="col-sm-4">
+      <div class="card social-block">
+        <div class="card-body">
+          <a class="btn btn-block" href="/auth/google" role="button">
+            <i class="fab fa-google"></i>
+            Sign Up with Google
+          </a>
+        </div>
+      </div>
+    </div>
+
+    </div> -->
+  </div>
+
+  <%- include('partials/footer') %>
